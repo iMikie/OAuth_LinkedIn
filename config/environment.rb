@@ -21,10 +21,14 @@ require "sinatra/reloader" if development?
 require 'erb'
 require 'bcrypt'
 
+require 'httparty'
+
 # Some helper constants for path-centric logic
 APP_ROOT = Pathname.new(File.expand_path('../../', __FILE__))
 
 APP_NAME = APP_ROOT.basename.to_s
+LINKED_IN_API_KEY = '75axn7wjdomyoh'
+LINKED_IN_API_SECRET= 'ZigsdL7pWOLoIsjw'
 
 configure do
   # By default, Sinatra assumes that the root is the file that calls the configure block.
@@ -44,3 +48,10 @@ Dir[APP_ROOT.join('app', 'helpers', '*.rb')].each { |file| require file }
 
 # Set up the database and models
 require APP_ROOT.join('config', 'database')
+
+#set up OAuth helper module for Linked in
+LinkedIn.setup(:key => LINKED_IN_API_KEY, :secret => LINKED_IN_API_SECRET, :redirect_uri => 'http://localhost:9393/oauth')
+
+#change before deploying to heroku
+#LinkedIn.setup(:key => LINKED_IN_API_KEY, :secret => LINKED_IN_API_SECRET, :redirect_uri => ' https://oauth-mike-scoob.herokuapp.com/oauth')
+

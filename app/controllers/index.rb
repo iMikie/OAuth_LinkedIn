@@ -1,9 +1,42 @@
 get '/' do
-  # render home page
- #TODO: Show all users if user is signed in
-  erb :index
+  if session[:user_id]
+    @user = User.where(id: session[:user_id]).first
+    p @user
+    erb :index
+  else
+    redirect '/signin'
+  end
 end
 
+
+#----------- LINKED IN FROM ANNE -----------
+
+get '/linked_in' do
+  redirect LinkedIn.authorization_url
+end
+
+get '/oauth' do
+  if params["error"]
+    @error = params['error_description']
+    redirect '/signin'
+  end
+  # get_access_token makes an http party request go see linked_in.rb helper
+
+  access_token = LinkedIn.get_access_token(params["code"])
+  # access_state = LinkedIn.get_access_token(params["state"])
+  # if !LinkedIn.check_state(access_state)
+  #   @error = "Cross-site_request_forgery"
+  #   status 401
+  # else
+     user = User.create_from_linked_in access_token
+     redirect "/users/#{user.id}"
+  # end
+end
+
+get '/users/:id' do
+  @user = User.find params[:id]
+  erb :index
+end
 #----------- SESSIONS -----------
 
 get '/signin' do
@@ -27,8 +60,8 @@ post '/sessions' do
   end
 end
 
-delete '/signout' do
-  session[:user_id] = nil
+delete '/signout/:id' do
+  session[ params['id'] ] = nil
   redirect '/'
 end
 
@@ -49,15 +82,15 @@ post '/users' do
   #                  password: params[:user][:password])
 
 
-  if @user.save
-    p "yaY!!!!!!"
-    session[:user_id] = @user.id
-    redirect '/'
-  else
-    @errors = @user.errors
-    p " duck " * 20
-    erb :sign_up
-  end
+if @user.save
+  p "yaY!!!!!!"
+  session[:user_id] = @user.id
+  redirect '/'
+else
+  @errors = @user.errors
+  p " duck " * 20
+  erb :sign_up
+end
 
 end
 

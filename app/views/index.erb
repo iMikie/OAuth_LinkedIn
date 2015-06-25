@@ -1,6 +1,9 @@
 <div class="container">
 
-  <%# TODO: 
-  1. If user is not signed in - display "Welcome".
-  2. If user is signed in then  display all users %>
-  </div>
+ <h1> Hello authorized boot: <%= @user.name %>  </h1>
+
+
+   <form id="signout" method="post" action="/signout/<%=@user.id%>">
+    <input type='hidden' name='_method' value="delete">
+    <div class="submit"><input type="submit" value="Logout"></div>
+  </form>
